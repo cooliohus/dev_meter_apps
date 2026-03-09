@@ -9,6 +9,7 @@ app = customtkinter.CTk()
 app.geometry("680x350")
 app.title('GImeter')
 
+#comment
 
 ser = serial.Serial('/dev/ttyACM1')
 print(ser.name)
