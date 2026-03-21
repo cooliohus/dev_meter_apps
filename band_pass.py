@@ -9,7 +9,7 @@ import time
 # Configuration.
 fS = 75000  # Sampling rate.
 fL = 250  # Cutoff frequency.
-fH = 10000  # Cutoff frequency.
+fH = 7500  # Cutoff frequency.
 NL = 461  # Filter length for roll-off at fL, must be odd.
 NH = 461  # Filter length for roll-off at fH, must be odd.
 
@@ -41,7 +41,12 @@ buff = []
 DEBUG = True
 CHART = False
 
-ser.write(b'>h\r')
+def r_d(x, base=5):
+    return x - (x % base)
+
+#ser.write(b'>h\r')
+ser.write(b'>hlt\r')
+ser.write(b'>con\r')
 
 while True:
     buffsum = 0
@@ -50,8 +55,9 @@ while True:
     cnt = 0
     for _ in range(1):
         ser_in = ""
-        print("writing cmd")
-        ser.write(b'>d\r')
+        #print("writing cmd")
+        ser.write(b'>dmp\r')        
+
         while len(ser_in) < 25:
             ser_in = ser.readline().split()
         
@@ -59,26 +65,28 @@ while True:
         #print("Buffer Length:",len(ser_in))
         if DEBUG:
             try:
+                print("len ser_in",len(ser_in))
+                deviation = r_d(int(ser_in[0]),5)
                 buff = [int(ser_in[x]) for x in range(len(ser_in))]
-                med = int(np.average(buff))
+                med = int(np.average(buff[1:]))
                 #med1 = sum(buff) / len(buff)
                 #print("debug:",med, med1)
-                buff = [int(ser_in[x]) - med for x in range(len(ser_in))]
+                buffm = [int(ser_in[x]) - med for x in range(len(ser_in))]
                 #buff = np.array(buff)
-                bufff = np.convolve(buff, hlpf)
+                bufff = np.convolve(buffm, hlpf)
             
-                umax = int(np.max(buff[250:4750]))
-                umin = int(np.min(buff[250:4750]))
+                umax = int(np.max(buff[250:2250]))
+                umin = int(np.min(buff[250:2250]))
 
-                fmax = int(np.max(bufff[500:5000]))
-                fmin = int(np.min(bufff[500:5000]))
+                fmax = int(np.max(bufff[500:2500]))
+                fmin = int(np.min(bufff[500:2500]))
                 
                 print("Min / Max",umin,fmin,umax,fmax,umax-umin,fmax-fmin)
 
                 # Compute the FFT
-                fft_values = np.fft.fft(buff)
+                fft_values = np.fft.fft(buffm)
                 freqs = np.fft.fftfreq(len(buff), 1/75_000)
-                print("length of freqs:",len(freqs))
+                #print("length of freqs:",len(freqs))
     
                 # Extract frequency components
                 amplitudes = np.abs(fft_values)
@@ -90,13 +98,14 @@ while True:
                 
 
 
-                fig = plt.figure()
+                fig = plt.figure("K3JSE Deviation Meter")
                 
                 ax = fig.add_subplot(2, 1, 1)
-                ax.plot(buff[32:])
+                #ax.plot(buff[32:])
+                ax.plot(bufff[240:])
                 plt.xlabel('Samples')
                 plt.ylabel('ADC Count')
-                plt.title('Input Signal')
+                plt.title('Input Signal - Deviation: ' + str(deviation) + " Hz")
                 plt.grid()
                 
                 #ax = fig.add_subplot(3, 1, 2)
@@ -122,7 +131,10 @@ while True:
                 # Or if you want different settings for the grids:
                 ax.grid(which='minor', alpha=0.2)
                 ax.grid(which='major', alpha=0.5)
-                ax.plot(frequencies[0:400], amplitudes[:400])
+                #print("len amplitudes",len(amplitudes))
+                #ax.plot(frequencies[0:400], amplitudes[:400])
+                ax.plot(frequencies[0:200], amplitudes[:200])
+
                 plt.title('Frequency Components')
                 plt.xlabel('Frequency (Hz)')
                 plt.ylabel('Amplitude')
@@ -130,7 +142,9 @@ while True:
                 plt.tight_layout()            
                 plt.show()
             except:
-                ser.write(b'>x\n')
+                print("exiting")
+                ser.write(b'>bye\n')
+                ser.write(b'>run\n')
                 ser.close()
                 sys.exit()
 

@@ -1,5 +1,6 @@
 import customtkinter
 from tkdial import Meter
+from tkinter import messagebox
 
 import serial
 from time import sleep
@@ -32,12 +33,20 @@ adc = 0
 ferror = 0
 fmedian = 2225
 
-def quit(event):
-    print("closing commands")
-    ser.write(b">bye\r")
+def c_r(value):
+    if value % 10 < 5:
+        return value - (value % 5)
+    else:
+        return value + (5 - (value % 5))
 
-def check():
-    app.after(500, check)  #  time in ms.
+def r_d(x, base=5):
+    return x - (x % base)
+
+def on_closing():
+    if messagebox.askokcancel("Quit", "Do you want to quit?"):
+        print("closing commands")
+        ser.write(b">bye\r")
+        app.destroy()
 
 def idle_loop():
     global adc, dev, ferror
@@ -55,14 +64,6 @@ def idle_loop():
     #print(dev,adc,ferror)
     app.after(0,update_gauge)
 
-def c_r(value):
-    if value % 10 < 5:
-        return value - (value % 5)
-    else:
-        return value + (5 - (value % 5))
-
-def r_d(x, base=5):
-    return x - (x % base)
 
 def update_gauge():
     global adc, dev, ferror
@@ -104,31 +105,9 @@ meter3.grid(row=0, column=2, padx=20, pady=30)
 
 
 
-
-#meter2 = Meter(app, radius=260, start=0, end=200, border_width=5,
-#               fg="black", text_color="white", start_angle=270, end_angle=-360,
-#               text_font="DS-Digital 30", scale_color="black", axis_color="white",
-#               needle_color="white")
-#meter2.set_mark(1, 100, "#92d050")
-#meter2.set_mark(105, 150, "yellow")
-#meter2.set_mark(155, 196, "red")
-#meter2.set(80) # set value
-#meter2.grid(row=0, column=0, padx=20, pady=30)
-
-#meter3 = Meter(app, fg="#242424", radius=300, start=0, end=50,
-#               major_divisions=10, border_width=0, text_color="w
-#            elif (mode == DUMP and thread_done)",
-#               start_angle=0, end_angle=-360, scale_color="white", axis_color="cyan",
-#               needle_color="white",  scroll_steps=0.2)
-#meter3.set(15)
-#meter3.grid(row=0, column=2, pady=30)
-
-#app.after(1, update_gauge
-
-#app.bind('<Control-c>', quit)
-
-app.after(500, check)  #  time in ms.
-app.bind_all('<Control-c>', quit)
+#app.after(500, check)  #  time in ms.
+#app.bind_all('<Control-c>', quit)
+app.protocol("WM_DELETE_WINDOW", on_closing)
 
 app.after_idle(idle_loop)
 app.mainloop()
