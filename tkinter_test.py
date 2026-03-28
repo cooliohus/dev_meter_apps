@@ -18,5 +18,6 @@ class App(customtkinter.CTk):
     def button_callback(self):
         print("button pressed")
 
+
 app = App()
 app.mainloop()

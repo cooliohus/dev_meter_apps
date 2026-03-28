@@ -44,6 +44,10 @@ CHART = False
 def r_d(x, base=5):
     return x - (x % base)
 
+def add():
+    print("add")
+
+
 #ser.write(b'>h\r')
 ser.write(b'>hlt\r')
 ser.write(b'>con\r')
@@ -100,6 +104,10 @@ while True:
 
                 fig = plt.figure("K3JSE Deviation Meter")
                 
+
+                bnext = Button(axes, 'Add',color="yellow")
+                bnext.on_clicked(add)
+
                 ax = fig.add_subplot(2, 1, 1)
                 #ax.plot(buff[32:])
                 ax.plot(bufff[240:])

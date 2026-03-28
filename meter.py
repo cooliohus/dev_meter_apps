@@ -1,6 +1,6 @@
 import customtkinter
 from tkdial import Meter
-from tkinter import messagebox
+#from tkinter import messagebox
 
 import serial
 from time import sleep
@@ -27,11 +27,16 @@ print("Starting")
 print("sending commands")
 ser.write(b">run\r")
 ser.write(b">con\r")
+ser.write(b">flp\r")
+#sleep(0.5)
+#ser.write(b">stm\r")
 
 dev = 0
 adc = 0
 ferror = 0
 fmedian = 2225
+adcsum = 0
+adccnt = 0
 
 def c_r(value):
     if value % 10 < 5:
@@ -43,13 +48,13 @@ def r_d(x, base=5):
     return x - (x % base)
 
 def on_closing():
-    if messagebox.askokcancel("Quit", "Do you want to quit?"):
-        print("closing commands")
-        ser.write(b">bye\r")
-        app.destroy()
+    #if messagebox.askokcancel("Quit", "Do you want to quit?"):
+    print("closing commands")
+    ser.write(b">bye\r")
+    app.destroy()
 
 def idle_loop():
-    global adc, dev, ferror
+    global adc, dev, ferror, adcsum, adccnt
     ser_in = str(ser.readline()).split(" ")
     #ser_in = str(ser.readline()).split(",")
     print(ser_in)
@@ -57,9 +62,18 @@ def idle_loop():
         dev = int(ser_in[2])
         adc = int(ser_in[3])
         ferror = int((int(ser_in[5]) - int(ser_in[4])) *5000/1755)
+        if abs(ferror) < 35:
+            ferror = 0
     except:
         #dev = 0
         print("try exception")
+    #adcsum += adc
+    #adccnt += 1
+    #if adccnt == 25:
+    #    print("Average:",adcsum/adccnt)
+    #    adccnt = 0
+    #    adcsum = 0
+    #if 
     #print("update",ser_in[0],ser_in[1])
     #print(dev,adc,ferror)
     app.after(0,update_gauge)
@@ -70,7 +84,8 @@ def update_gauge():
     #print("update",dev, adc)
     meter1.set(r_d(dev,5))
     #meter1.set(dev)
-    meter2.set(r_d(adc))
+    #meter2.set(r_d(adc))
+    meter2.set(adc)
     meter2.set_mark(10,15,"green")
     meter3.set(c_r(ferror))
     meter3.set_mark(18,23,"green")
@@ -92,7 +107,7 @@ meter1.grid(row=0, column=1, padx=20, pady=30)
 
 meter2 = Meter(app, radius=270, start=-0, end=4100, border_width=10,
                fg="black", text_color="white", start_angle=225, end_angle=-270,
-               major_divisions=500, minor_divisions=100,text="\n P2P",
+               major_divisions=500, minor_divisions=100,text="\n ADC P2P",
 text_font="DS-Digital 14", scale_color="white", needle_color="white")
 meter2.grid(row=0, column=3, padx=20, pady=30)
 
@@ -109,5 +124,6 @@ meter3.grid(row=0, column=2, padx=20, pady=30)
 #app.bind_all('<Control-c>', quit)
 app.protocol("WM_DELETE_WINDOW", on_closing)
 
-app.after_idle(idle_loop)
+#app.after_idle(idle_loop)
+idle_loop()
 app.mainloop()
