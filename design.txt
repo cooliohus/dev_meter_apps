@@ -8,9 +8,10 @@ Homebrew friendly
   - Readily available parts
   - Easy calibration
 Fair accuracy and precisiomn
-PC interface for "value added" features
+PC interface for "value added" features and calibration
 Accept "reasonable constraints"
+  - Maximum audio 6 kHz
   - Maximum deviation: 6 kHz
-  - Maximum frequency offset
-       +/- 5 kHz at 2 kHz deviation
-       +/- 2 kHz at 5 kHz deviation
+  - Maximum measured frequency offset
+       +/- 5 kHz at 1 kHz deviation
+       +/- 1.5 kHz at 5 kHz deviation

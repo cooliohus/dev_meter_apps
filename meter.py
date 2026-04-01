@@ -5,9 +5,12 @@ from tkdial import Meter
 import serial
 from time import sleep
 
+visible = True
+raw = False
+
 app = customtkinter.CTk()
 #app.geometry("320x350")
-app.geometry("1000x350")
+app.geometry("1000x400")
 app.title('GImeter')
 
 
@@ -54,12 +57,15 @@ def on_closing():
     app.destroy()
 
 def idle_loop():
-    global adc, dev, ferror, adcsum, adccnt
+    global adc, dev, ferror, adcsum, adccnt,raw
     ser_in = str(ser.readline()).split(" ")
     #ser_in = str(ser.readline()).split(",")
     print(ser_in)
     try:
-        dev = int(ser_in[2])+2
+        if raw:
+            dev = int(ser_in[2])
+        else:
+            dev = int(ser_in[2])+2
         adc = int(ser_in[3])
         ferror = int((int(ser_in[5]) - int(ser_in[4])) *5000/1755)
         if abs(ferror) < 35:
@@ -82,7 +88,10 @@ def idle_loop():
 def update_gauge():
     global adc, dev, ferror
     #print("update",dev, adc)
-    meter1.set(r_d(dev,5))
+    if raw:
+        meter1.set(dev)
+    else:
+        meter1.set(r_d(dev,5))
     #meter1.set(dev)
     #meter2.set(r_d(adc))
     meter2.set(adc)
@@ -94,8 +103,8 @@ def update_gauge():
 
 
 meter1 = Meter(app, radius=270, start=0, end=6000, border_width=10,
-               fg="black", text_color="white", start_angle=225, end_angle=-270,
-               major_divisions=500, minor_divisions=100, text="    ",
+               fg="black", text_color="White", start_angle=225, end_angle=-270,
+               major_divisions=500, minor_divisions=100,integer=False,
                text_font="DS-Digital 14", scale_color="white", needle_color="white")
 meter1.set_mark(0, 12) # set red marking from 140 to 160
 meter1.set_mark(12, 18,"yellow") # set red marking from 140 to 160
@@ -103,6 +112,7 @@ meter1.set_mark(18, 25,"green") # set red marking from 140 to 160
 meter1.set_mark(25, 30,"yellow") # set red marking from 140 to 160
 meter1.set_mark(30, 60) # set red marking from 140 to 160
 meter1.grid(row=0, column=1, padx=20, pady=30)
+#major_divisions=500, minor_divisions=100, text="    ",
 
 
 meter2 = Meter(app, radius=270, start=-0, end=4100, border_width=10,
@@ -118,6 +128,34 @@ meter3 = Meter(app, radius=270, start=-5000, end=5000, border_width=10,
 text_font="DS-Digital 14", scale_color="white", needle_color="white")
 meter3.grid(row=0, column=2, padx=20, pady=30)
 
+
+def b_visible_event():
+    global visible
+    print("button pressed")
+    #meter1.text = "    "
+    if visible:
+        meter1.text_color="black"
+        b_visible.configure(text="Show")
+        visible = False
+    else:
+        meter1.text_color="white"
+        b_visible.configure(text="Hide")
+        visible = True
+    #meter1.configure(text_font="DS-Digital 14")
+
+b_visible = customtkinter.CTkButton(app, text="Hide", command=b_visible_event)
+b_visible.grid(row=1,column=1)
+
+def b_raw_event():
+    global raw
+    if raw:
+        b_raw.configure(text="Filtered")
+    else:
+        b_raw.configure(text="Raw")
+    raw = not raw
+
+b_raw = customtkinter.CTkButton(app, text="Raw", command=b_raw_event)
+b_raw.grid(row=1,column=2)
 
 
 #app.after(500, check)  #  time in ms.
