@@ -59,7 +59,7 @@ def idle_loop():
     #ser_in = str(ser.readline()).split(",")
     print(ser_in)
     try:
-        dev = int(ser_in[2])
+        dev = int(ser_in[2])+2
         adc = int(ser_in[3])
         ferror = int((int(ser_in[5]) - int(ser_in[4])) *5000/1755)
         if abs(ferror) < 35:

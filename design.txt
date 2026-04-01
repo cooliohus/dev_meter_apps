@@ -1,0 +1,16 @@
+Goals
+Power from USB or USB power bank
+Self contained basic operation
+  - deviation
+  - frequency offset
+Homebrew friendly
+  - Easy and cheap to build
+  - Readily available parts
+  - Easy calibration
+Fair accuracy and precisiomn
+PC interface for "value added" features
+Accept "reasonable constraints"
+  - Maximum deviation: 6 kHz
+  - Maximum frequency offset
+       +/- 5 kHz at 2 kHz deviation
+       +/- 2 kHz at 5 kHz deviation
