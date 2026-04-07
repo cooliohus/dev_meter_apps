@@ -77,7 +77,7 @@ while True:
     #print("Buffer Length:",len(ser_in))
 
     try:
-        #print("len ser_in",len(ser_in))
+        print("len ser_in",len(ser_in))
         deviation = r_d(int(ser_in[0]),5)
         buff = [int(ser_in[x]) for x in range(len(ser_in))]
         med = int(np.average(buff[1:]))
