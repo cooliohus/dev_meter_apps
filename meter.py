@@ -30,6 +30,7 @@ print("Starting")
 #ser.write(b">m\r")
 print("sending commands")
 ser.write(b">run\r")
+#ser.write(b">avg\r")
 ser.write(b">con\r")
 ser.write(b">flp\r")
 #sleep(0.5)
@@ -94,6 +95,8 @@ def idle_loop():
 def update_gauge():
     global adc, dev, ferror, raw
     #print("update",dev, adc)
+    if dev > 5999:
+        dev = 0
     if raw:
         meter1.set(dev)
         meter2.set(ferror)
