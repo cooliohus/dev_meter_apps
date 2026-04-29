@@ -1,12 +1,25 @@
-import customtkinter
+import customtkinter,time
 from tkdial import Meter
 #from tkinter import messagebox
 
 import serial
 from time import sleep
 
+R_SAMPLE_RATE = 0
+R_SAMPLE_BUFFER = 1
+R_SHIFT = 2
+R_REF = 3
+R_XX = 4
+R_X = 5
+R_C = 6
+R_SCALE = 7
+R_SCRATCH = 8
+R_VERSION = 9
+
+
 visible = True
 raw = False
+stm = False
 calibrate = False
 
 app = customtkinter.CTk()
@@ -32,7 +45,10 @@ print("sending commands")
 ser.write(b">run\r")
 #ser.write(b">avg\r")
 ser.write(b">con\r")
-ser.write(b">flp\r")
+#time.sleep(0.5)
+#ser.write(b">stm\r")     # calibrate frequency offset to current value
+#ser.write(b">str,3,2070\r")     # calibrate frequency offset
+#ser.write(b">flp\r")
 #sleep(0.5)
 #ser.write(b">stm\r")
 
@@ -42,6 +58,7 @@ ferror = 0
 fmedian = 2225
 adcsum = 0
 adccnt = 0
+err = False
 
 def c_r(value):
     if value % 10 < 5:
@@ -59,23 +76,28 @@ def on_closing():
     app.destroy()
 
 def idle_loop():
-    global adc, dev, ferror, adcsum, adccnt,raw
+    global adc, dev, ferror, adcsum, adccnt,raw, err
     ser_in = str(ser.readline()).split(" ")
     #ser_in = str(ser.readline()).split(",")
     if not calibrate:
         print(ser_in)
     try:
         #ferror = int((int(ser_in[5]) - int(ser_in[4])) *5000/1590)
-        ferror = int(ser_in[6])
-        if raw:
-            dev = int(ser_in[2])
+        #ferror = int((int(ser_in[5]) - int(ser_in[4])) *5000/1550)   # RP2350
+        if int(ser_in[2]) == 1:
+            err = "ovf"
+        elif int(ser_in[2]) == 2:
+            err = "ufl"
         else:
-            dev = int(ser_in[2])
+            err = "none"
+        ferror = int(ser_in[4])
+        if raw:
+            dev = int(ser_in[3])
+        else:
+            dev = int(ser_in[3])
             if abs(ferror) < 35:
                 ferror = 0
-        adc = int(ser_in[3])
-
-        
+        adc = int(ser_in[5])
     except:
         #dev = 0
         print("try exception")
@@ -93,10 +115,21 @@ def idle_loop():
 
 
 def update_gauge():
-    global adc, dev, ferror, raw
+    global adc, dev, ferror, raw, err
     #print("update",dev, adc)
-    if dev > 5999:
+    #dev = int(dev * 1.005)
+    if err == "ovf":
+      meter1.text_color="red"
+      meter2.text_color = "red"
+    elif err == "ufl":
+      meter1.text_color="yellow"
+      meter2.text_color = "yellow"  
+    else:
+        meter1.text_color="white"
+        meter2.text_color="white"
+    if dev > 6015:
         dev = 0
+        ferror = 0
     if raw:
         meter1.set(dev)
         meter2.set(ferror)
@@ -156,8 +189,8 @@ def b_visible_event():
         visible = True
     #meter1.configure(text_font="DS-Digital 14")
 
-b_visible = customtkinter.CTkButton(app, text="Hide", command=b_visible_event)
-b_visible.grid(row=1,column=1)
+#b_visible = customtkinter.CTkButton(app, text="Hide", command=b_visible_event)
+#b_visible.grid(row=1,column=1)
 
 def b_raw_event():
     global raw
@@ -168,7 +201,20 @@ def b_raw_event():
     raw = not raw
 
 b_raw = customtkinter.CTkButton(app, text="Raw", command=b_raw_event)
-b_raw.grid(row=1,column=2)
+b_raw.grid(row=1,column=1)
+
+def b_stm_event():
+    global stm
+    if stm:
+        print("stm")
+        ser.write(b">str,3,2047\r")
+        stm = False
+    else:
+        ser.write(b">stm\r")
+        stm = True
+
+b_stm = customtkinter.CTkButton(app, text="STM", command=b_stm_event)
+b_stm.grid(row=1,column=2)
 
 #label = customtkinter.CTkLabel(app, text="Deviation", fg_color="transparent")
 #label.grid(row=1,column=1)
@@ -181,3 +227,4 @@ app.protocol("WM_DELETE_WINDOW", on_closing)
 #app.after_idle(idle_loop)
 idle_loop()
 app.mainloop()
+

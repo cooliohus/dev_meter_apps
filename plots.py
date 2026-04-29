@@ -9,7 +9,7 @@ import time
 
 # Configuration.
 #fS = 75000  # Sampling rate.
-fS = 150000  # Sampling rate.
+fS = 200000  # Sampling rate.
 fL = 50  # Cutoff frequency.
 fH = 5500  # Cutoff frequency.
 NL = 461  # Filter length for roll-off at fL, must be odd.
@@ -77,13 +77,14 @@ while True:
     #print("Buffer Length:",len(ser_in))
 
     try:
-        print("len ser_in",len(ser_in))
-        deviation = r_d(int(ser_in[0]),5)
-        buff = [int(ser_in[x]) for x in range(len(ser_in))]
-        med = int(np.average(buff[1:]))
+        #print("len ser_in",len(ser_in))
+        deviation = r_d(int(ser_in[1]),5)
+        #print("deviation",deviation)
+        buff = [int(ser_in[x]) for x in range(int(ser_in[0]))]
+        med = int(np.average(buff[2:]))
         #med1 = sum(buff) / len(buff)
         #print("debug:",med, med1)
-        buffm = [int(ser_in[x]) - med for x in range(len(ser_in))]
+        buffm = [int(ser_in[x]) - med for x in range(int(ser_in[0]))]
         #buff = np.array(buff)
         #bufff = np.convolve(buffm, hlpf)
         bufff = np.convolve(buffm, hhpf)
