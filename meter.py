@@ -1,3 +1,25 @@
+#
+#    K3JSE Pico based deviation meter RP2040 register definitions
+#    Copyright (C) 2026  W. Andy Cooper, K3JSE
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+#    The author can be contacted by email at k3jse@ccoolioh.com#
+
+
+#  https://datasheets.raspberrypi.com/rp2040/rp2040-datasheet.pdf
+
+
 import customtkinter,time
 from tkdial import Meter
 #from tkinter import messagebox
@@ -24,7 +46,7 @@ calibrate = False
 
 app = customtkinter.CTk()
 #app.geometry("320x350")
-app.geometry("640x400")
+app.geometry("640x450")
 app.title('GImeter')
 
 
@@ -125,8 +147,12 @@ def update_gauge():
       meter1.text_color="yellow"
       meter2.text_color = "yellow"  
     else:
-        meter1.text_color="white"
-        meter2.text_color="white"
+        if visible:
+            meter1.text_color="white"
+            meter2.text_color="white"
+        else:
+            meter1.text_color="black"
+            meter2.text_color="black"
     if dev > 6015:
         dev = 0
         ferror = 0
@@ -142,7 +168,7 @@ def update_gauge():
     #meter3.set(adc)
     #meter3.set_mark(10,15,"green")
     #meter3.set(c_r(ferror))
-    meter2.set_mark(18,23,"green")
+    meter2.set_mark(19,22,"green")
     app.after_idle(idle_loop)
 
 
@@ -189,8 +215,8 @@ def b_visible_event():
         visible = True
     #meter1.configure(text_font="DS-Digital 14")
 
-#b_visible = customtkinter.CTkButton(app, text="Hide", command=b_visible_event)
-#b_visible.grid(row=1,column=1)
+b_visible = customtkinter.CTkButton(app, text="Hide", command=b_visible_event)
+b_visible.grid(row=1,column=1)
 
 def b_raw_event():
     global raw
@@ -201,12 +227,12 @@ def b_raw_event():
     raw = not raw
 
 b_raw = customtkinter.CTkButton(app, text="Raw", command=b_raw_event)
-b_raw.grid(row=1,column=1)
+b_raw.grid(row=1,column=2)
 
 def b_stm_event():
     global stm
     if stm:
-        print("stm")
+        #print("stm")
         ser.write(b">str,3,2047\r")
         stm = False
     else:
@@ -214,7 +240,7 @@ def b_stm_event():
         stm = True
 
 b_stm = customtkinter.CTkButton(app, text="STM", command=b_stm_event)
-b_stm.grid(row=1,column=2)
+b_stm.grid(row=2,column=1,pady=20)
 
 #label = customtkinter.CTkLabel(app, text="Deviation", fg_color="transparent")
 #label.grid(row=1,column=1)
