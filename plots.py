@@ -16,10 +16,6 @@
 #
 #    The author can be contacted by email at k3jse@ccoolioh.com#
 
-
-#  https://datasheets.raspberrypi.com/rp2040/rp2040-datasheet.pdf
-
-
 from __future__ import division
 import serial, sys
 import numpy as np

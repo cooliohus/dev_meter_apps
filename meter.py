@@ -17,9 +17,6 @@
 #    The author can be contacted by email at k3jse@ccoolioh.com#
 
 
-#  https://datasheets.raspberrypi.com/rp2040/rp2040-datasheet.pdf
-
-
 import customtkinter,time
 from tkdial import Meter
 #from tkinter import messagebox
