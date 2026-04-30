@@ -19,6 +19,8 @@
 
 import sys, getopt, serial, time
 
+VERSION "1.0.1 04/30/2026"
+
 ser_device = '/dev/ttyACM0'  # default device
 cmd = ''                     # optional command
 mode = 'run'                 # mode = run or avg
@@ -91,9 +93,9 @@ if currentArg in ("-p", "--profile"):
     if (currentVal in ["ha2040", "ha2350", "hp2040", "hp2350"]):
         print("Setting profile:",currentVal)
         if currentVal == 'hp2040':
-            ser.write(b">str,4,0.00001626\r")
-            ser.write(b">str,5,1.609244\r")
-            ser.write(b">str,6,-93.121\r")
+            ser.write(b">str,4,0.00001200482\r")
+            ser.write(b">str,5,1.630135\r")
+            ser.write(b">str,6,-102.449\r")
         elif currentVal == 'ha2040':
             ser.write(b">str,4,0.000012389634\r")
             ser.write(b">str,5,1.6107685\r")

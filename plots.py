@@ -25,6 +25,8 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
 import time
 
+VERSION = "1.0.1 04/30/2026"
+
 # Configuration.
 #fS = 75000  # Sampling rate.
 fS = 200000  # Sampling rate.

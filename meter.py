@@ -24,6 +24,7 @@ from tkdial import Meter
 import serial
 from time import sleep
 
+VERSION = "1.0.1 04/30/2026"
 R_SAMPLE_RATE = 0
 R_SAMPLE_BUFFER = 1
 R_SHIFT = 2
@@ -39,7 +40,7 @@ R_VERSION = 9
 visible = True
 raw = False
 stm = False
-calibrate = False
+calibrate = True
 
 app = customtkinter.CTk()
 #app.geometry("320x350")
