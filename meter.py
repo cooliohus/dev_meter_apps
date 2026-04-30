@@ -40,7 +40,7 @@ R_VERSION = 9
 visible = True
 raw = False
 stm = False
-calibrate = True
+calibrate = False
 
 app = customtkinter.CTk()
 #app.geometry("320x350")
@@ -239,6 +239,12 @@ def b_stm_event():
 
 b_stm = customtkinter.CTkButton(app, text="STM", command=b_stm_event)
 b_stm.grid(row=2,column=1,pady=20)
+
+def b_flp_event():
+    ser.write(b">flp\r")
+
+b_flp = customtkinter.CTkButton(app, text="Flip 1106 Display", command=b_flp_event)
+b_flp.grid(row=2,column=2,pady=20)
 
 #label = customtkinter.CTkLabel(app, text="Deviation", fg_color="transparent")
 #label.grid(row=1,column=1)

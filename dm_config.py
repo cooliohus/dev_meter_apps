@@ -19,7 +19,7 @@
 
 import sys, getopt, serial, time
 
-VERSION "1.0.1 04/30/2026"
+VERSION = "1.0.1 04/30/2026"
 
 ser_device = '/dev/ttyACM0'  # default device
 cmd = ''                     # optional command
