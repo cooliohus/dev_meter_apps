@@ -1,5 +1,5 @@
 #
-#    K3JSE Pico based deviation meter RP2040 register definitions
+#    K3JSE Pico based deviation meter Set the DC reference value
 #    Copyright (C) 2026  W. Andy Cooper, K3JSE
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
-#    The author can be contacted by email at k3jse@ccoolioh.com#
+#    The author can be contacted by email at k3jse@coolioh.com#
 
 
 

@@ -1,5 +1,5 @@
 #
-#    K3JSE Pico based deviation meter RP2040 register definitions
+#    K3JSE Pico based deviation meter update configurations
 #    Copyright (C) 2026  W. Andy Cooper, K3JSE
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
-#    The author can be contacted by email at k3jse@ccoolioh.com#
+#    The author can be contacted by email at k3jse@coolioh.com#
 
 
 import sys, getopt, serial, time
@@ -26,8 +26,8 @@ cmd = ''                     # optional command
 mode = 'run'                 # mode = run or avg
 
 args = sys.argv[1:]
-options = "hd:c:m:o:p:s:"
-long_options = ["help", "dev=", "cmd=", "mode=", "offset=", "profile=", "scale="]
+options = "hd:c:m:o:p:s:u"
+long_options = ["help", "dev=", "cmd=", "mode=", "offset=", "profile=", "scale=", "update"]
 
 try:
     arguments, values = getopt.getopt(args, options, long_options)
@@ -90,7 +90,7 @@ if currentArg in ("-s", "--scale"):
 
 
 if currentArg in ("-p", "--profile"):
-    if (currentVal in ["ha2040", "ha2350", "hp2040", "hp2350"]):
+    if (currentVal in ["ha2040", "ha2350", "hp2040", "hp2350","habc244"]):
         print("Setting profile:",currentVal)
         if currentVal == 'hp2040':
             ser.write(b">str,4,0.00001200482\r")
@@ -104,6 +104,10 @@ if currentArg in ("-p", "--profile"):
             ser.write(b">str,4,0.00001797804\r")
             ser.write(b">str,5,1.603437\r")
             ser.write(b">str,6,-83.752\r")
+        elif currentVal == 'habc244':
+            ser.write(b">str,4,0.000035398627\r")
+            ser.write(b">str,5,1.87444\r")
+            ser.write(b">str,6,-65.567\r")
     else:
         print("Error: unknown profile - valid profiles")
         print("  ha2040 - handy andy, PICO 1 / RP2040")
