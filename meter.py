@@ -24,7 +24,7 @@ from tkdial import Meter
 import serial
 from time import sleep
 
-VERSION = "1.0.2 05/05/2026"
+VERSION = "1.03.2 05/05/2026"
 R_SAMPLE_RATE = 0
 R_SAMPLE_BUFFER = 1
 R_SHIFT = 2
@@ -40,11 +40,11 @@ R_VERSION = 9
 visible = True
 raw = False
 stm = False
-calibrate = True
+calibrate = False
 
 app = customtkinter.CTk()
 #app.geometry("320x350")
-app.geometry("640x450")
+app.geometry("640x550")
 app.title('GImeter')
 
 
@@ -248,6 +248,18 @@ def b_flp_event():
 
 b_flp = customtkinter.CTkButton(app, text="Flip 1106 Display", command=b_flp_event)
 b_flp.grid(row=2,column=2,pady=20)
+
+def b_cal_event():
+    global calibrate
+    if calibrate:
+        b_cal.configure(text="Calibrate")
+    else:
+        b_cal.configure(text="Run")
+    calibrate = not calibrate
+
+b_cal = customtkinter.CTkButton(app, text="Calibrate", command=b_cal_event)
+b_cal.grid(row=3,column=1,pady=0)
+
 
 #label = customtkinter.CTkLabel(app, text="Deviation", fg_color="transparent")
 #label.grid(row=1,column=1)
