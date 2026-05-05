@@ -24,7 +24,7 @@ from tkdial import Meter
 import serial
 from time import sleep
 
-VERSION = "1.0.1 04/30/2026"
+VERSION = "1.0.2 05/05/2026"
 R_SAMPLE_RATE = 0
 R_SAMPLE_BUFFER = 1
 R_SHIFT = 2
@@ -40,7 +40,7 @@ R_VERSION = 9
 visible = True
 raw = False
 stm = False
-calibrate = False
+calibrate = True
 
 app = customtkinter.CTk()
 #app.geometry("320x350")
@@ -77,6 +77,7 @@ adc = 0
 ferror = 0
 fmedian = 2225
 adcsum = 0
+devsum = 0
 adccnt = 0
 err = False
 
@@ -96,7 +97,7 @@ def on_closing():
     app.destroy()
 
 def idle_loop():
-    global adc, dev, ferror, adcsum, adccnt,raw, err
+    global adc, dev, ferror, adcsum, devsum, adccnt,raw, err
     ser_in = str(ser.readline()).split(" ")
     #ser_in = str(ser.readline()).split(",")
     if not calibrate:
@@ -123,10 +124,12 @@ def idle_loop():
         print("try exception")
     if calibrate:
         adcsum += adc
+        devsum += dev
         adccnt += 1
         if adccnt == 10:
-            print("Average:",adcsum/adccnt)
+            print("Average:",devsum/adccnt,adcsum/adccnt)
             adccnt = 0
+            devsum = 0
             adcsum = 0
         #if 
         #print("update",ser_in[0],ser_in[1])

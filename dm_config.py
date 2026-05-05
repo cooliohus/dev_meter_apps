@@ -97,9 +97,12 @@ if currentArg in ("-p", "--profile"):
             ser.write(b">str,5,1.630135\r")
             ser.write(b">str,6,-102.449\r")
         elif currentVal == 'ha2040':
-            ser.write(b">str,4,0.000012389634\r")
-            ser.write(b">str,5,1.6107685\r")
-            ser.write(b">str,6,-93.211\r")
+            ser.write(b">str,4,0.000012738942\r")
+            ser.write(b">str,5,1.612026\r")
+            ser.write(b">str,6,-103.52\r")
+            #ser.write(b">str,4,0.000012389634\r")
+            #ser.write(b">str,5,1.6107685\r")
+            #ser.write(b">str,6,-93.211\r")
         elif currentVal == 'hp2350':
             ser.write(b">str,4,0.00001797804\r")
             ser.write(b">str,5,1.603437\r")
