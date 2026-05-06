@@ -19,40 +19,107 @@
 
 import sys, getopt, serial, time
 
-VERSION = "1.0.1 04/30/2026"
+VERSION = "1.0.2 05/06/2026"
 
 ser_device = '/dev/ttyACM0'  # default device
 cmd = ''                     # optional command
 mode = 'run'                 # mode = run or avg
+update = False
 
 args = sys.argv[1:]
 options = "hd:c:m:o:p:s:u"
 long_options = ["help", "dev=", "cmd=", "mode=", "offset=", "profile=", "scale=", "update"]
 
+
+
+def ahelp(arg,val):
+    print("Showing --help")
+
+def adev(arg,val):
+    # set serial device
+    print("--dev")
+
+def acmd(arg,val):
+    print("--cmd")
+
+def amode(arg,val):
+    print("--mode")
+
+def aoffset(arg,val):
+    print("Setting DC Offset",val)
+    s = ">str,3,"+val+"\r"
+    ser.write(s.encode("utf-8"))
+
+def aprofile(arg,val):
+    print("Setting new compensation profile")
+    if (val in ["ha2040", "ha2350", "hp2040", "hp2350","habc244"]):
+        print("Setting profile:",currentVal)
+        if val == 'hp2040':
+            ser.write(b">str,4,0.00001200482\r")
+            ser.write(b">str,5,1.630135\r")
+            ser.write(b">str,6,-102.449\r")
+        elif val == 'ha2040':
+            ser.write(b">str,4,0.000012738942\r")
+            ser.write(b">str,5,1.612026\r")
+            ser.write(b">str,6,-103.52\r")
+            #ser.write(b">str,4,0.000012389634\r")
+            #ser.write(b">str,5,1.6107685\r")
+            #ser.write(b">str,6,-93.211\r")
+        elif val == 'hp2350':
+            ser.write(b">str,4,0.000015263812\r")
+            ser.write(b">str,5,1.614238\r")
+            ser.write(b">str,6,-99.826\r")
+            #ser.write(b">str,4,0.00001797804\r")
+            #ser.write(b">str,5,1.603437\r")
+            #ser.write(b">str,6,-83.752\r")
+        elif val == 'habc244':
+            ser.write(b">str,4,0.000035398627\r")
+            ser.write(b">str,5,1.87444\r")
+            ser.write(b">str,6,-65.567\r")
+    else:
+        print("Error: unknown profile - valid profiles")
+        print("  ha2040 - handy andy, PICO 1 / RP2040")
+        print("  hp2040 - hewlett packard, PICO 1 / RP2040")
+        print("  ha2350 - handy andy, PICO 2 / RP2350")
+        print("  hp2350 - hewlett packard, PICO 2 / RP2350")
+
+def ascale(arg,val):
+        print("Setting DC Offset",val)
+        s = ">str,7,"+val+"\r"
+        ser.write(s.encode("utf-8"))
+
+def aupdate():
+    print("Updating configuration file")
+    ser.write(b">scf\r")
+
+
 try:
     arguments, values = getopt.getopt(args, options, long_options)
-    #arguments, values = getopt.getopt(args, options)
-    for currentArg, currentVal in arguments:
-        if currentArg in ("-h", "--help"):
-            print("Showing Help")
-        elif currentArg in ("-d", "--dev"):
-            ser_device = currentVal
-        elif currentArg in ("-c", "--cmd"):
-            cmd = currentVal
-            print("Command",cmd)
-
-
 except getopt.error as err:
     print("Getopt Error:",str(err))
     sys.exit()
 
-print("Serial device:",ser_device)
+# Check to see if -d or --dev has been specified.  Need to do this before
+# attrmpting to open the serial port
+# Check to see if -u or --update has been specified.  Remember this in order to 
+# update configuration file after all options processed
+for arg,val in arguments:
+  print("arg:",arg)
+  if arg in ("-d", "--dev"):
+        ser_device = val
+  if arg in ("-u", "--update"):
+        update = True
+
+
+print("Serial port:",ser_device)
 try:
     ser = serial.Serial(ser_device)
 except:
     # Error open serial device, print message then exit
     print("Error opening device",ser_device)
     sys.exit()
+else:
+    print("Serial device open")
 
 ser.write(b">hlt\r")
 time.sleep(.5)
@@ -67,63 +134,69 @@ while waiting > 0:
 
 print("Connecting to meter")
 
-
 ser.write(b">lsr\r")
 time.sleep(.2)
 if ser.in_waiting == 0:
     print("Error: can't connect")
     sys.exit()
+
 data = ser.readline()
-print("Registers:",data)
+#print("data[0]",data[0])
+if chr(data[0]) != '[':
+    print("Error connecting to meter")
+else:
+    print("Cconnected to meter")
+
+print("Current Registers:",data,'\n')
+
+# Not very elegant.....
+try:
+    for currentArg, currentVal in arguments:
+        if currentArg in ("-h","--help"):
+            ahelp(currentArg,currentVal)
+        elif currentArg in ("-p","--profile"):
+            aprofile(currentArg,currentVal)
+        elif currentArg in ("-o", "--offset"):
+            aoffset(currentArg,currentVal)
+        elif currentArg in ("-s", "--scale"):
+            ascale(currentArg,currentVal)
+
+except:
+    print("oops, an error occured")
 
 
-if currentArg in ("-o", "--offset"):
-    print("Setting DC Offset",currentVal)
-    s = ">str,3,"+currentVal+"\r"
-    #ser.write(b">str,3,"+currentVal+"\r")
-    ser.write(s.encode("utf-8"))
 
-if currentArg in ("-s", "--scale"):
-    print("Setting DC Offset",currentVal)
-    s = ">str,7,"+currentVal+"\r"
-    ser.write(s.encode("utf-8"))
+# Dislay the new opersting registers
+ser.write(b">lsr\r")
+time.sleep(.2)
+if ser.in_waiting == 0:
+    print("Error: No register data returned")
+    sys.exit()
+
+data = ser.readline()
+#print("data[0]",data[0])
+if chr(data[0]) != '[':
+    print("Error: incorrect response to >lsr command")
+else:
+    print("\nUpdated Registers:",data)
+
+# If update specified then create / update the configuration file
+# to override application defaults
+if update:
+    aupdate()
 
 
-if currentArg in ("-p", "--profile"):
-    if (currentVal in ["ha2040", "ha2350", "hp2040", "hp2350","habc244"]):
-        print("Setting profile:",currentVal)
-        if currentVal == 'hp2040':
-            ser.write(b">str,4,0.00001200482\r")
-            ser.write(b">str,5,1.630135\r")
-            ser.write(b">str,6,-102.449\r")
-        elif currentVal == 'ha2040':
-            ser.write(b">str,4,0.000012738942\r")
-            ser.write(b">str,5,1.612026\r")
-            ser.write(b">str,6,-103.52\r")
-            #ser.write(b">str,4,0.000012389634\r")
-            #ser.write(b">str,5,1.6107685\r")
-            #ser.write(b">str,6,-93.211\r")
-        elif currentVal == 'hp2350':
-            ser.write(b">str,4,0.000015263812\r")
-            ser.write(b">str,5,1.614238\r")
-            ser.write(b">str,6,-99.826\r")
-            #ser.write(b">str,4,0.00001797804\r")
-            #ser.write(b">str,5,1.603437\r")
-            #ser.write(b">str,6,-83.752\r")
-        elif currentVal == 'habc244':
-            ser.write(b">str,4,0.000035398627\r")
-            ser.write(b">str,5,1.87444\r")
-            ser.write(b">str,6,-65.567\r")
-    else:
-        print("Error: unknown profile - valid profiles")
-        print("  ha2040 - handy andy, PICO 1 / RP2040")
-        print("  hp2040 - hewlett packard, PICO 1 / RP2040")
-        print("  ha2350 - handy andy, PICO 2 / RP2350")
-        print("  hp2350 - hewlett packard, PICO 2 / RP2350")
-        ser.close()
-        sys.exit()
+# disconnect from the meter and place into run mode
+print("Disconnect and close the serial device")
+ser.write(b">bye\r")
+ser.write(b">run\r")
+ser.close()
+sys.exit()
 
-if cmd in ["", "wrr"]:
+
+
+
+#if cmd in ["", "wrr"]:
     #opcodes = {
     #    ">avg":cmd_avg,     # run in average mode
     #    ">bye":cmd_bye,     # disconnect from client
@@ -139,23 +212,3 @@ if cmd in ["", "wrr"]:
     #    ">str":cmd_str      # store value register
     #}
 
-    if cmd != "":
-        print("Running command:",cmd)
-else:
-    print("Error: Unknown command")
-    ser.close()
-    sys.exit()
-
-ser.write(b">lsr\r")
-time.sleep(.2)
-if ser.in_waiting == 0:
-    print("Error: can't connect")
-    sys.exit()
-data = ser.readline()
-print("Registers:",data)
-
-# disconnect from the deviation meter
-print("Disconnect from meter and halt")
-ser.write(b">bye\r")
-ser.write(b">run\r")
-ser.close()
