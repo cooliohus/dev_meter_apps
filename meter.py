@@ -44,7 +44,7 @@ calibrate = False
 
 app = customtkinter.CTk()
 #app.geometry("320x350")
-app.geometry("640x550")
+app.geometry("640x500")
 app.title('GImeter')
 
 
