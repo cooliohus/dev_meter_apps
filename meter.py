@@ -46,7 +46,7 @@ calibrate = False
 app = customtkinter.CTk()
 #app.geometry("320x350")
 app.geometry("640x500")
-app.title('GImeter')
+app.title('GImeter  '+VERSION)
 
 
 ser = serial.Serial('/dev/ttyACM1')
