@@ -1,5 +1,5 @@
 #
-#    K3JSE Pico based deviation meter Meters
+#    K3JSE Pico based deviation meter
 #    Copyright (C) 2026  W. Andy Cooper, K3JSE
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@ from tkdial import Meter
 import serial
 from time import sleep
 
-VERSION = "1.03.2 05/05/2026"
+VERSION = "1.03.3 05/14/2026"
 R_SAMPLE_RATE = 0
 R_SAMPLE_BUFFER = 1
 R_SHIFT = 2
@@ -40,6 +40,7 @@ R_VERSION = 9
 visible = True
 raw = False
 stm = False
+run = True
 calibrate = False
 
 app = customtkinter.CTk()
@@ -259,6 +260,20 @@ def b_cal_event():
 
 b_cal = customtkinter.CTkButton(app, text="Calibrate", command=b_cal_event)
 b_cal.grid(row=3,column=1,pady=0)
+
+
+def b_run_event():
+    global run
+    if run:
+        b_run.configure(text="Run")
+        ser.write(b">avg\r")
+    else:
+        b_run.configure(text="Avg")
+        ser.write(b">run\r")
+    run = not run
+
+b_run = customtkinter.CTkButton(app, text="Avg", command=b_run_event)
+b_run.grid(row=3,column=2,pady=0)
 
 
 #label = customtkinter.CTkLabel(app, text="Deviation", fg_color="transparent")

@@ -52,7 +52,7 @@ h = np.convolve(hlpf, hhpf)
 print(len(h))
 #print(h)
 
-ser = serial.Serial("/dev/ttyACM1",115200)
+ser = serial.Serial("/dev/ttyACM3",115200)
 print(ser.name)
 buff = []
 #buff = ser.readline()

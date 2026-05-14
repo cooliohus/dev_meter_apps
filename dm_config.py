@@ -102,7 +102,7 @@ except getopt.error as err:
 # Check to see if -d or --dev has been specified.  Need to do this before
 # attrmpting to open the serial port
 # Check to see if -u or --update has been specified.  Remember this in order to 
-# update configuration file after all options processed
+# update the configuration file after all options processed
 for arg,val in arguments:
   print("arg:",arg)
   if arg in ("-d", "--dev"):
